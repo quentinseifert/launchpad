@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Launchpad</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #18181c;
+    --pad-empty: #1e1e24;
+    --pad-border: #2a2a35;
+    --playing: #ff2d55;
+    --assigned: #1a1a40;
+    --text: #e8e8f0;
+    --muted: #44445a;
+    --accent: #ff2d55;
+    --green: #00ff88;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .logo { font-size: 13px; font-weight: 700; letter-spacing: 0.15em; }
+  .logo span { color: var(--accent); }
+
+  #midi-status {
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  #midi-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+  }
+  #midi-dot.connected { background: var(--green); }
+
+  /* Now playing bar */
+  #now-playing {
+    background: var(--surface);
+    border: 1px solid var(--pad-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+  }
+  #now-playing .label { color: var(--muted); flex-shrink: 0; }
+  #now-playing-name {
+    color: var(--accent);
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #playing-bar {
+    margin-left: auto;
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  #playing-bar span {
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  #playing-bar.active span {
+    opacity: 1;
+    animation: bounce 0.6s infinite alternate;
+  }
+  #playing-bar.active span:nth-child(2) { animation-delay: 0.1s; }
+  #playing-bar.active span:nth-child(3) { animation-delay: 0.2s; }
+  @keyframes bounce {
+    from { transform: scaleY(0.3); }
+    to { transform: scaleY(1); }
+  }
+
+  /* Grid */
+  #grid-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 5px;
+    width: min(100%, 100vw - 24px);
+    aspect-ratio: 1;
+  }
+
+  .pad {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    background: var(--pad-empty);
+    border: 1px solid var(--pad-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.08s, filter 0.08s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    overflow: hidden;
+  }
+
+  .pad.has-clip {
+    background: var(--assigned);
+    border-color: #333360;
+  }
+
+  .pad.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  .pad.playing {
+    background: var(--playing) !important;
+    border-color: var(--playing);
+  }
+
+  .pad:active { transform: scale(0.88); filter: brightness(1.3); }
+
+  .pad-label {
+    font-size: 7px;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 2px;
+    line-height: 1.2;
+    overflow: hidden;
+    max-width: 100%;
+    word-break: break-all;
+  }
+
+  .pad.has-clip .pad-label { color: rgba(255,255,255,0.8); }
+
+  .pad-color-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    display: none;
+  }
+  .pad.has-clip .pad-color-dot { display: block; }
+
+  /* Panel */
+  #panel {
+    background: var(--surface);
+    border: 1px solid var(--pad-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    flex-shrink: 0;
+    display: none;
+    gap: 10px;
+    flex-direction: column;
+  }
+  #panel.visible { display: flex; }
+
+  .panel-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-label {
+    font-size: 10px;
+    color: var(--muted);
+    flex-shrink: 0;
+    width: 50px;
+  }
+
+  .panel-value {
+    font-size: 11px;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 10px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: #2a2a3e; color: var(--text); }
+  .btn-danger { background: #2a1820; color: #ff6b6b; }
+
+  .color-swatch {
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    border: 1px solid var(--pad-border);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  input[type="color"] {
+    opacity: 0;
+    position: absolute;
+    width: 0; height: 0;
+  }
+
+  input[type="file"] { display: none; }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--surface);
+    border: 1px solid var(--pad-border);
+    color: var(--text);
+    font-size: 11px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: transform 0.25s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 99;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo"><span>LAUNCH</span>PAD</div>
+    <div id="midi-status">
+      <div id="midi-dot"></div>
+      <span id="midi-label">kein MIDI</span>
+    </div>
+  </header>
+
+  <div id="now-playing">
+    <span class="label">▶</span>
+    <span id="now-playing-name">—</span>
+    <div id="playing-bar">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div id="grid-wrap">
+    <div id="grid"></div>
+  </div>
+
+  <div id="panel">
+    <div class="panel-row">
+      <span class="panel-label">PAD</span>
+      <span class="panel-value" id="panel-pad">—</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-label">CLIP</span>
+      <span class="panel-value" id="panel-clip">kein Clip</span>
+    </div>
+    <div class="panel-row">
+      <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">CLIP LADEN</button>
+      <button class="btn btn-danger" onclick="removeClip()">ENTFERNEN</button>
+      <div style="position:relative; margin-left:auto;">
+        <div class="color-swatch" id="color-swatch" onclick="document.getElementById('color-input').click()"></div>
+        <input type="color" id="color-input" onchange="setColor(this.value)">
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept=".wav,.mp3,.ogg" onchange="assignClip(this)">
+<div id="toast"></div>
+
+<script>
+const GRID = 8;
+const state = {
+  clips: {},      // "x,y" -> { file, name, url, color }
+  selected: null,
+  playing: null,
+  audioCtx: null,
+};
+
+// --- Audio ---
+function getAudioCtx() {
+  if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (state.audioCtx.state === 'suspended') state.audioCtx.resume();
+  return state.audioCtx;
+}
+
+async function playClip(key) {
+  const clip = state.clips[key];
+  if (!clip) return;
+
+  const ctx = getAudioCtx();
+  const response = await fetch(clip.url);
+  const arrayBuffer = await response.arrayBuffer();
+  const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+  const source = ctx.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(ctx.destination);
+  source.start();
+
+  // Update UI
+  document.getElementById('now-playing-name').textContent = clip.name;
+  document.getElementById('playing-bar').classList.add('active');
+
+  if (state.playing) {
+    const prevPad = document.querySelector(`[data-key="${state.playing}"]`);
+    if (prevPad) prevPad.classList.remove('playing');
+  }
+  state.playing = key;
+  const pad = document.querySelector(`[data-key="${key}"]`);
+  if (pad) pad.classList.add('playing');
+
+  source.onended = () => {
+    if (state.playing === key) {
+      state.playing = null;
+      document.getElementById('now-playing-name').textContent = '—';
+      document.getElementById('playing-bar').classList.remove('active');
+    }
+    if (pad) pad.classList.remove('playing');
+  };
+}
+
+// --- Grid ---
+function buildGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  for (let y = 0; y < GRID; y++) {
+    for (let x = 0; x < GRID; x++) {
+      const key = `${x},${y}`;
+      const pad = document.createElement('div');
+      pad.className = 'pad';
+      pad.dataset.key = key;
+      pad.innerHTML = `<span class="pad-label"></span><div class="pad-color-dot"></div>`;
+      pad.addEventListener('click', () => onPadClick(key));
+      grid.appendChild(pad);
+      updatePad(key);
+    }
+  }
+}
+
+function updatePad(key) {
+  const pad = document.querySelector(`[data-key="${key}"]`);
+  if (!pad) return;
+  const clip = state.clips[key];
+  const label = pad.querySelector('.pad-label');
+  const dot = pad.querySelector('.pad-color-dot');
+
+  if (clip) {
+    pad.classList.add('has-clip');
+    label.textContent = clip.name.length > 8 ? clip.name.slice(0,7) + '…' : clip.name;
+    const color = clip.color || '#1a1a40';
+    pad.style.background = color;
+    dot.style.background = color;
+    pad.style.borderColor = color;
+  } else {
+    pad.classList.remove('has-clip');
+    label.textContent = '';
+    pad.style.background = '';
+    pad.style.borderColor = '';
+    dot.style.background = '';
+  }
+}
+
+function onPadClick(key) {
+  // Deselect previous
+  if (state.selected) {
+    const prev = document.querySelector(`[data-key="${state.selected}"]`);
+    if (prev) prev.classList.remove('selected');
+  }
+
+  state.selected = key;
+  const pad = document.querySelector(`[data-key="${key}"]`);
+  pad.classList.add('selected');
+
+  const [x, y] = key.split(',');
+  document.getElementById('panel-pad').textContent = `(${x}, ${y})`;
+
+  const clip = state.clips[key];
+  document.getElementById('panel-clip').textContent = clip ? clip.name : 'kein Clip';
+
+  const swatch = document.getElementById('color-swatch');
+  swatch.style.background = clip?.color || '#1a1a40';
+  document.getElementById('color-input').value = clip?.color || '#1a1a40';
+
+  document.getElementById('panel').classList.add('visible');
+
+  if (clip) playClip(key);
+}
+
+// --- Clip Management ---
+function assignClip(input) {
+  if (!state.selected || !input.files[0]) return;
+  const file = input.files[0];
+  const url = URL.createObjectURL(file);
+  const existing = state.clips[state.selected];
+  state.clips[state.selected] = {
+    file, name: file.name.replace(/\.[^.]+$/, ''), url,
+    color: existing?.color || '#1e2060'
+  };
+  updatePad(state.selected);
+  document.getElementById('panel-clip').textContent = state.clips[state.selected].name;
+  const swatch = document.getElementById('color-swatch');
+  swatch.style.background = state.clips[state.selected].color;
+  input.value = '';
+  toast('Clip geladen');
+}
+
+function removeClip() {
+  if (!state.selected) return;
+  delete state.clips[state.selected];
+  updatePad(state.selected);
+  document.getElementById('panel-clip').textContent = 'kein Clip';
+  toast('Clip entfernt');
+}
+
+function setColor(color) {
+  if (!state.selected) return;
+  if (state.clips[state.selected]) {
+    state.clips[state.selected].color = color;
+    updatePad(state.selected);
+  }
+  document.getElementById('color-swatch').style.background = color;
+}
+
+// --- MIDI ---
+async function initMIDI() {
+  if (!navigator.requestMIDIAccess) {
+    document.getElementById('midi-label').textContent = 'kein Web MIDI';
+    return;
+  }
+  try {
+    const midi = await navigator.requestMIDIAccess();
+    const updateMIDI = () => {
+      let found = false;
+      midi.inputs.forEach(input => {
+        if (input.name.toLowerCase().includes('launchpad')) {
+          found = true;
+          input.onmidimessage = onMIDIMessage;
+        }
+      });
+      document.getElementById('midi-dot').className = found ? 'connected' : '';
+      document.getElementById('midi-label').textContent = found ? 'Launchpad verbunden' : 'kein Launchpad';
+    };
+    updateMIDI();
+    midi.onstatechange = updateMIDI;
+  } catch(e) {
+    document.getElementById('midi-label').textContent = 'MIDI verweigert';
+  }
+}
+
+function onMIDIMessage(e) {
+  const [status, note, velocity] = e.data;
+  // note_on mit velocity > 0
+  if ((status & 0xf0) === 0x90 && velocity > 0) {
+    // Launchpad S: note = y*16 + x (für Grid-Pads)
+    const x = note % 16;
+    const y = Math.floor(note / 16);
+    if (x < 8 && y < 8) {
+      const key = `${x},${y}`;
+      onPadClick(key);
+    }
+  }
+}
+
+// --- Toast ---
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+// --- Init ---
+buildGrid();
+initMIDI();
+</script>
+</body>
+</html>
