@@ -58,6 +58,7 @@ const PRESET_RAW = {
   "5,0": { clip: "clips/Noise.wav",      farbe: "lila",   name: "Crash"   },
   "6,0": { clip: "clips/Front_Right.wav",     farbe: "pink",   name: "Tom Hi"  },
   "7,0": { clip: "clips/Front_Left.wav",    farbe: "weiss",  name: "Tom Low" },
+  "0,1": { clip: "clips/airhorn.mp3",    farbe: "pink",  name: "airhorn" },
 
   // "0,1": { clip: "clips/bass.wav",    farbe: "rot-dunkel", name: "Bass" },
 };
