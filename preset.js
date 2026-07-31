@@ -50,14 +50,14 @@ const FARBEN = {
 // ============================================
 
 const PRESET_RAW = {
-  "0,0": { clip: "clips/kick.wav",       farbe: "rot",    name: "Kick"    },
-  "1,0": { clip: "clips/snare.wav",      farbe: "orange", name: "Snare"   },
-  "2,0": { clip: "clips/hihat.wav",      farbe: "gelb",   name: "HiHat"   },
-  "3,0": { clip: "clips/hihat-open.wav", farbe: "gruen",  name: "HH Open" },
-  "4,0": { clip: "clips/clap.wav",       farbe: "blau",   name: "Clap"    },
-  "5,0": { clip: "clips/crash.wav",      farbe: "lila",   name: "Crash"   },
-  "6,0": { clip: "clips/tom-hi.wav",     farbe: "pink",   name: "Tom Hi"  },
-  "7,0": { clip: "clips/tom-low.wav",    farbe: "weiss",  name: "Tom Low" },
+  "0,0": { clip: "clips/Side_Right.wav",       farbe: "rot",    name: "Kick"    },
+  "1,0": { clip: "clips/Side_Left.wav",      farbe: "orange", name: "Snare"   },
+  "2,0": { clip: "clips/Rear_Right.wav",      farbe: "gelb",   name: "HiHat"   },
+  "3,0": { clip: "clips/Rear_Left.wav", farbe: "gruen",  name: "HH Open" },
+  "4,0": { clip: "clips/Rear_Center.wav",       farbe: "blau",   name: "Clap"    },
+  "5,0": { clip: "clips/Noise.wav",      farbe: "lila",   name: "Crash"   },
+  "6,0": { clip: "clips/Front_Right.wav",     farbe: "pink",   name: "Tom Hi"  },
+  "7,0": { clip: "clips/Front_Left.wav",    farbe: "weiss",  name: "Tom Low" },
 
   // "0,1": { clip: "clips/bass.wav",    farbe: "rot-dunkel", name: "Bass" },
 };
