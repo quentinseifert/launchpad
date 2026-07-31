@@ -263,7 +263,7 @@ const GRID = 8;
 const state = {
   clips: {},
   selected: null,
-  playing: null,
+  playing: {},   // key -> AudioBufferSourceNode
   audioCtx: null,
   mode: null,
 };
@@ -313,6 +313,15 @@ async function playClip(key) {
   const clip = state.clips[key];
   if (!clip) return;
   const ctx = getAudioCtx();
+
+  // Gleichen Sound neu starten: alten stoppen
+  if (state.playing[key]) {
+    try { state.playing[key].stop(); } catch(e) {}
+    delete state.playing[key];
+    const pad = document.querySelector(`[data-key="${key}"]`);
+    if (pad) pad.classList.remove('playing');
+  }
+
   const response = await fetch(clip.url);
   const arrayBuffer = await response.arrayBuffer();
   const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
@@ -321,24 +330,24 @@ async function playClip(key) {
   source.connect(ctx.destination);
   source.start();
 
+  state.playing[key] = source;
+
   document.getElementById('now-playing-name').textContent = clip.name;
   document.getElementById('playing-bar').classList.add('active');
 
-  if (state.playing) {
-    const prev = document.querySelector(`[data-key="${state.playing}"]`);
-    if (prev) prev.classList.remove('playing');
-  }
-  state.playing = key;
   const pad = document.querySelector(`[data-key="${key}"]`);
   if (pad) pad.classList.add('playing');
 
   source.onended = () => {
-    if (state.playing === key) {
-      state.playing = null;
-      document.getElementById('now-playing-name').textContent = '—';
-      document.getElementById('playing-bar').classList.remove('active');
+    if (state.playing[key] === source) {
+      delete state.playing[key];
+      if (pad) pad.classList.remove('playing');
+      // "Now playing" nur leeren wenn nichts mehr spielt
+      if (Object.keys(state.playing).length === 0) {
+        document.getElementById('now-playing-name').textContent = '—';
+        document.getElementById('playing-bar').classList.remove('active');
+      }
     }
-    if (pad) pad.classList.remove('playing');
   };
 }
 
