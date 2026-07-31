@@ -293,8 +293,11 @@ function loadPreset() {
       .then(r => { if (!r.ok) throw new Error(); return r.blob(); })
       .then(blob => {
         const url = URL.createObjectURL(blob);
-        state.clips[key] = { name: cfg.name || cfg.clip.split('/').pop().replace(/\.[^.]+$/, ''), url, color: cfg.color || '#1a1a40' };
+        const color = cfg.color || '#1a1a40';
+        state.clips[key] = { name: cfg.name || cfg.clip.split('/').pop().replace(/\.[^.]+$/, ''), url, color };
         updatePad(key);
+        const [px, py] = key.split(',').map(Number);
+        setLED(px, py, color);
         count++;
       })
       .catch(() => toast(`Clip nicht gefunden: ${cfg.clip}`));
@@ -338,11 +341,14 @@ async function playClip(key) {
   const pad = document.querySelector(`[data-key="${key}"]`);
   if (pad) pad.classList.add('playing');
 
+  const [lx, ly] = key.split(',').map(Number);
+  setLEDPlaying(lx, ly);
+
   source.onended = () => {
     if (state.playing[key] === source) {
       delete state.playing[key];
       if (pad) pad.classList.remove('playing');
-      // "Now playing" nur leeren wenn nichts mehr spielt
+      setLED(lx, ly, clip.color || '#1e1e24');
       if (Object.keys(state.playing).length === 0) {
         document.getElementById('now-playing-name').textContent = '—';
         document.getElementById('playing-bar').classList.remove('active');
@@ -443,13 +449,63 @@ function setColor(color) {
 }
 
 // --- MIDI ---
+let midiOutput = null;
+
+// Launchpad S Farbe -> velocity (rot 0-3, gruen 0-3)
+// note_on velocity = 16*gruen + rot (je 0=aus, 1=dunkel, 2=mittel, 3=hell)
+function hexToLaunchpadVelocity(hex) {
+  const map = {
+    "#ff2d55": 3,        // rot
+    "#7a0020": 1,        // rot-dunkel
+    "#ff6a00": 19,       // orange (rot+gruen)
+    "#ffcc00": 54,       // gelb (rot hell + gruen mittel)
+    "#997a00": 50,       // gelb-dunkel
+    "#00ff88": 48,       // gruen
+    "#007a40": 32,       // gruen-dunkel
+    "#6aff00": 52,       // gruen-olive
+    "#0a84ff": 48,       // blau → gruen (Launchpad S hat kein blau)
+    "#003d7a": 32,       // blau-dunkel → gruen-dunkel
+    "#bf5af2": 3,        // lila → rot
+    "#5a007a": 1,        // lila-dunkel → rot-dunkel
+    "#ff375f": 3,        // pink → rot
+    "#e8e8f0": 63,       // weiss → gelb hell
+    "#44445a": 17,       // grau → dunkel
+    "#1e1e24": 0,        // aus
+  };
+  return map[hex.toLowerCase()] ?? 0;
+}
+
+function setLED(x, y, hex) {
+  if (!midiOutput) return;
+  const note = y * 16 + x;
+  const velocity = hexToLaunchpadVelocity(hex);
+  midiOutput.send([0x90, note, velocity]);
+}
+
+function setLEDPlaying(x, y) {
+  if (!midiOutput) return;
+  const note = y * 16 + x;
+  midiOutput.send([0x90, note, 3]); // rot hell = spielend
+}
+
+function resetAllLEDs() {
+  if (!midiOutput) return;
+  // Reset Launchpad
+  midiOutput.send([0xB0, 0, 0]);
+  // Alle zugewiesenen Pads einfärben
+  Object.entries(state.clips).forEach(([key, clip]) => {
+    const [x, y] = key.split(',').map(Number);
+    setLED(x, y, clip.color || '#1e1e24');
+  });
+}
+
 async function initMIDI() {
   if (!navigator.requestMIDIAccess) {
     document.getElementById('midi-label').textContent = 'kein Web MIDI';
     return;
   }
   try {
-    const midi = await navigator.requestMIDIAccess();
+    const midi = await navigator.requestMIDIAccess({ sysex: false });
     const update = () => {
       let found = false;
       midi.inputs.forEach(input => {
@@ -458,8 +514,14 @@ async function initMIDI() {
           input.onmidimessage = onMIDIMessage;
         }
       });
+      midi.outputs.forEach(output => {
+        if (output.name.toLowerCase().includes('launchpad')) {
+          midiOutput = output;
+        }
+      });
       document.getElementById('midi-dot').className = found ? 'connected' : '';
       document.getElementById('midi-label').textContent = found ? 'Launchpad verbunden' : 'kein Launchpad';
+      if (found) resetAllLEDs();
     };
     update();
     midi.onstatechange = update;
