@@ -1,20 +1,71 @@
 // ============================================
 //  LAUNCHPAD PRESET KONFIGURATION
-//  Format: "x,y": { clip: "pfad", color: "#hex", name: "anzeigename" }
-//  x = 0-7 (links nach rechts)
-//  y = 0-7 (oben nach unten)
+// ============================================
+//
+//  VERFÜGBARE FARBEN (Launchpad S):
+//
+//  "rot"          #ff2d55
+//  "rot-dunkel"   #7a0020
+//  "orange"       #ff6a00
+//  "gelb"         #ffcc00
+//  "gelb-dunkel"  #997a00
+//  "gruen"        #00ff88
+//  "gruen-dunkel" #007a40
+//  "gruen-olive"  #6aff00
+//  "blau"         #0a84ff
+//  "blau-dunkel"  #003d7a
+//  "lila"         #bf5af2
+//  "lila-dunkel"  #5a007a
+//  "pink"         #ff375f
+//  "weiss"        #e8e8f0
+//  "grau"         #44445a
+//  "aus"          #1e1e24  (kein Licht)
+//
 // ============================================
 
-const PRESET = {
-  "0,0": { clip: "clips/kick.wav",       color: "#ff2d55", name: "Kick"    },
-  "1,0": { clip: "clips/snare.wav",      color: "#ff9500", name: "Snare"   },
-  "2,0": { clip: "clips/hihat.wav",      color: "#ffcc00", name: "HiHat"   },
-  "3,0": { clip: "clips/hihat-open.wav", color: "#34c759", name: "HH Open" },
-  "4,0": { clip: "clips/clap.wav",       color: "#00c7be", name: "Clap"    },
-  "5,0": { clip: "clips/crash.wav",      color: "#0a84ff", name: "Crash"   },
-  "6,0": { clip: "clips/tom-hi.wav",     color: "#5e5ce6", name: "Tom Hi"  },
-  "7,0": { clip: "clips/tom-low.wav",    color: "#bf5af2", name: "Tom Low" },
-
-  // Zweite Reihe – einfach auskommentieren oder anpassen
-  // "0,1": { clip: "clips/bass.wav",    color: "#ff375f", name: "Bass"    },
+const FARBEN = {
+  "rot":          "#ff2d55",
+  "rot-dunkel":   "#7a0020",
+  "orange":       "#ff6a00",
+  "gelb":         "#ffcc00",
+  "gelb-dunkel":  "#997a00",
+  "gruen":        "#00ff88",
+  "gruen-dunkel": "#007a40",
+  "gruen-olive":  "#6aff00",
+  "blau":         "#0a84ff",
+  "blau-dunkel":  "#003d7a",
+  "lila":         "#bf5af2",
+  "lila-dunkel":  "#5a007a",
+  "pink":         "#ff375f",
+  "weiss":        "#e8e8f0",
+  "grau":         "#44445a",
+  "aus":          "#1e1e24",
 };
+
+// ============================================
+//  PADS KONFIGURIEREN
+//  Format: "x,y": { clip: "clips/datei.wav", farbe: "farbname", name: "Anzeigename" }
+//  x = 0-7 (links → rechts)
+//  y = 0-7 (oben → unten)
+// ============================================
+
+const PRESET_RAW = {
+  "0,0": { clip: "clips/kick.wav",       farbe: "rot",    name: "Kick"    },
+  "1,0": { clip: "clips/snare.wav",      farbe: "orange", name: "Snare"   },
+  "2,0": { clip: "clips/hihat.wav",      farbe: "gelb",   name: "HiHat"   },
+  "3,0": { clip: "clips/hihat-open.wav", farbe: "gruen",  name: "HH Open" },
+  "4,0": { clip: "clips/clap.wav",       farbe: "blau",   name: "Clap"    },
+  "5,0": { clip: "clips/crash.wav",      farbe: "lila",   name: "Crash"   },
+  "6,0": { clip: "clips/tom-hi.wav",     farbe: "pink",   name: "Tom Hi"  },
+  "7,0": { clip: "clips/tom-low.wav",    farbe: "weiss",  name: "Tom Low" },
+
+  // "0,1": { clip: "clips/bass.wav",    farbe: "rot-dunkel", name: "Bass" },
+};
+
+// Farbnamen in Hex umwandeln (nicht ändern)
+const PRESET = Object.fromEntries(
+  Object.entries(PRESET_RAW).map(([key, cfg]) => [
+    key,
+    { ...cfg, color: FARBEN[cfg.farbe] || FARBEN["grau"] }
+  ])
+);
