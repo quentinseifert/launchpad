@@ -57,8 +57,16 @@ const PRESET_RAW = {
   "4,0": { clip: "clips/Rear_Center.wav",       farbe: "blau",   name: "Clap"    },
   "5,0": { clip: "clips/Noise.wav",      farbe: "lila",   name: "Crash"   },
   "6,0": { clip: "clips/Front_Right.wav",     farbe: "pink",   name: "Tom Hi"  },
-  "7,0": { clip: "clips/Front_Left.wav",    farbe: "weiss",  name: "Tom Low" },
+  "6,1": { clip: "clips/Front_Left.wav",    farbe: "weiss",  name: "Tom Low" },
   "0,1": { clip: "clips/airhorn.mp3",    farbe: "pink",  name: "airhorn" },
+  
+  "7,0": { clip: "clips/Lachen_short.wav",    farbe: "lila",  name: "lachen" },
+  "7,1": { clip: "clips/Lachen_short2.wav",    farbe: "lila",  name: "lachen2" },
+  "7,2": { clip: "clips/dokter1.wav",    farbe: "lila",  name: "dokter" },
+  "7,3": { clip: "clips/kein_bock.wav.mp3",    farbe: "lila",  name: "kb" },
+  "7,4": { clip: "clips/wieso.wav.mp3",    farbe: "lila",  name: "wieso" },
+  "7,5": { clip: "clips/arbeit.mp3",    farbe: "lila",  name: "arbeit" },
+  "7,6": { clip: "clips/cool.mp3",    farbe: "lila",  name: "cool" },
 
   // "0,1": { clip: "clips/bass.wav",    farbe: "rot-dunkel", name: "Bass" },
 };
