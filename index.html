@@ -317,13 +317,16 @@ async function playClip(key) {
   if (!clip) return;
   const ctx = getAudioCtx();
 
-  // Gleichen Sound neu starten: alten stoppen
-  if (state.playing[key]) {
-    try { state.playing[key].stop(); } catch(e) {}
-    delete state.playing[key];
-    const pad = document.querySelector(`[data-key="${key}"]`);
-    if (pad) pad.classList.remove('playing');
-  }
+  // Alle laufenden Sounds stoppen
+  Object.entries(state.playing).forEach(([k, src]) => {
+    try { src.stop(); } catch(e) {}
+    const p = document.querySelector(`[data-key="${k}"]`);
+    if (p) p.classList.remove('playing');
+    const clip = state.clips[k];
+    const [lx, ly] = k.split(',').map(Number);
+    setLED(lx, ly, clip?.color || '#1e1e24');
+  });
+  state.playing = {};
 
   const response = await fetch(clip.url);
   const arrayBuffer = await response.arrayBuffer();
