@@ -50,14 +50,14 @@ const FARBEN = {
 // ============================================
 
 const PRESET_RAW = {
-  "0,0": { clip: "clips/Side_Right.wav",       farbe: "rot",    name: "Kick"    },
+  "0,3": { clip: "clips/Side_Right.wav",       farbe: "rot",    name: "Kick"    },
   "1,0": { clip: "clips/Side_Left.wav",      farbe: "orange", name: "Snare"   },
   "2,0": { clip: "clips/Rear_Right.wav",      farbe: "gelb",   name: "HiHat"   },
   "3,0": { clip: "clips/Rear_Left.wav", farbe: "gruen",  name: "HH Open" },
   "4,0": { clip: "clips/Rear_Center.wav",       farbe: "blau",   name: "Clap"    },
   "5,0": { clip: "clips/Noise.wav",      farbe: "lila",   name: "Crash"   },
   "6,0": { clip: "clips/Front_Right.wav",     farbe: "pink",   name: "Tom Hi"  },
-  "6,1": { clip: "clips/Front_Left.wav",    farbe: "weiss",  name: "Tom Low" },
+  "1,1": { clip: "clips/Front_Left.wav",    farbe: "weiss",  name: "Tom Low" },
   "0,1": { clip: "clips/airhorn.mp3",    farbe: "pink",  name: "airhorn" },
 
   // TBS song clips
@@ -69,6 +69,27 @@ const PRESET_RAW = {
   "7,5": { clip: "clips/arbeit.wav",    farbe: "lila",  name: "arbeit" },
   "7,6": { clip: "clips/cool.wav",    farbe: "lila",  name: "cool" },
 
+
+// other meme sounds
+  "6,0": { clip: "clips/ejah_music-microsoft-windows-xp-shutdown-sound-effect-443256.mp3",    farbe: "gruen",  name: "xp" },
+  "6,1": { clip: "clips/pwlpl-applause-sound-effect-521104.mp3",    farbe: "gruen",  name: "appl" },
+  "6,2": { clip: "clips/wir_schaffen_das.mp3",    farbe: "gruen",  name: "angie" },
+  "6,3": { clip: "clips/jo-da-hamse-recht.mp3",    farbe: "gruen",  name: "angie2" },
+  "6,4": { clip: "clips/super-mario-death-sound-sound-effect.mp3",    farbe: "gruen",  name: "mario" },
+  "6,5": { clip: "clips/a-few-moments-later-hd.mp3",    farbe: "gruen",  name: "sb1" },
+  "6,6": { clip: "clips/3000_jahre_spater.mp3",    farbe: "gruen",  name: "sb2" },
+
+
+ "5,0": { clip: "clips/linkara-atop-the-fourth-wall-funniest-joke.mp3",    farbe: "weiss",  name: "science" },
+  "5,1": { clip: "clips/patrick-ich-liebe-sie-spongebob-deutsch.mp3",    farbe: "weiss",  name: "lve" },
+  "5,2": { clip: "clips/spongebob-squarepants-wa-wa-wa.mp3",    farbe: "weiss",  name: "sb3" },
+  "5,3": { clip: "clips/dramatic-cue-a.mp3",    farbe: "weiss",  name: "drama" },
+  "5,4": { clip: "clips/snoop-dogg-base-instrumental-mp3cut.mp3",    farbe: "weiss",  name: "sd" },
+
+  
+   "0,0": { clip: "clips/lets_g1.mp3",    farbe: "rot",  name: "letsgo" },
+
+  
   // "0,1": { clip: "clips/bass.wav",    farbe: "rot-dunkel", name: "Bass" },
 };
 
