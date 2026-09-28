@@ -60,7 +60,7 @@ const PRESET_RAW = {
   "0,6": { clip: "clips/td.mp3",     farbe: "rot",   name: "MM2"  },
   "1,6": { clip: "clips/td_f.mp3",     farbe: "gruen",   name: "MM2"  },
   "0,7": { clip: "clips/99.mp3",    farbe: "rot",  name: "MM3" },
-  "1,7": { clip: "clips/99_f.mp3",    farbe: "gruen",  name: "MM3" },
+  "1,7": { clip: "clips/99_f.wav",    farbe: "gruen",  name: "MM3" },
   "2,0": { clip: "clips/airhorn.mp3",    farbe: "pink",  name: "airhorn" },
 
   // TBS song clips
