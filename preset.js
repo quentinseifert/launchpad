@@ -50,14 +50,17 @@ const FARBEN = {
 // ============================================
 
 const PRESET_RAW = {
-  "1,0": { clip: "clips/Side_Right.wav",       farbe: "rot",    name: "Kick"    },
-  "1,1": { clip: "clips/Side_Left.wav",      farbe: "orange", name: "Snare"   },
-  "1,2": { clip: "clips/Rear_Right.wav",      farbe: "gelb",   name: "HiHat"   },
-  "1,3": { clip: "clips/Rear_Left.wav", farbe: "gruen",  name: "HH Open" },
-  "1,4": { clip: "clips/Rear_Center.wav",       farbe: "blau",   name: "Clap"    },
-  "1,5": { clip: "clips/Noise.wav",      farbe: "lila",   name: "Crash"   },
-  "1,6": { clip: "clips/Front_Right.wav",     farbe: "pink",   name: "Tom Hi"  },
-  "1,7": { clip: "clips/Front_Left.wav",    farbe: "weiss",  name: "Tom Low" },
+  //"1,0": { clip: "clips/Side_Right.wav",       farbe: "rot",    name: "Kick"    },
+  //"1,1": { clip: "clips/Side_Left.wav",      farbe: "orange", name: "Snare"   },
+  //"1,2": { clip: "clips/Rear_Right.wav",      farbe: "gelb",   name: "HiHat"   },
+  //"1,3": { clip: "clips/Rear_Left.wav", farbe: "gruen",  name: "HH Open" },
+  //"1,4": { clip: "clips/Rear_Center.wav",       farbe: "blau",   name: "Clap"    },
+  "1,5": { clip: "clips/wwru_f.mp3",      farbe: "gruen",   name: "MM1"   },
+  "0,5": { clip: "clips/wwru.mp3",      farbe: "rot",   name: "MM1"   },
+  "0,6": { clip: "clips/td.mp3",     farbe: "rot",   name: "MM2"  },
+  "1,6": { clip: "clips/td_f.mp3",     farbe: "gruen",   name: "MM2"  },
+  "0,7": { clip: "clips/99.mp3",    farbe: "rot",  name: "MM3" },
+  "1,7": { clip: "clips/99_f.mp3",    farbe: "gruen",  name: "MM3" },
   "2,0": { clip: "clips/airhorn.mp3",    farbe: "pink",  name: "airhorn" },
 
   // TBS song clips
